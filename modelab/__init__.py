@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import importlib.metadata
 import json
 import logging
 import urllib.request
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from modelab._assignment import Assignment
 from modelab._engine import assign_variant
@@ -19,7 +21,10 @@ from modelab._types import (
     Variant,
 )
 
+__version__ = importlib.metadata.version("modelab")
+
 __all__ = [
+    "__version__",
     "init",
     "assign",
     "evaluate",
@@ -78,9 +83,7 @@ def assign(flag_name: str, ctx: EvalContext) -> Assignment | None:
     try:
         storage.save_assignment(record)
     except Exception:
-        logging.getLogger("modelab").warning(
-            "Failed to save assignment for %s", flag_name, exc_info=True
-        )
+        logging.getLogger("modelab").warning("Failed to save assignment for %s", flag_name, exc_info=True)
 
     return Assignment(
         flag_name=flag_name,
@@ -114,7 +117,8 @@ def evaluate(flag_name: str) -> dict[str, Any]:
     url = f"{_global_state.server_url.rstrip('/')}/api/v1/flags/{flag_name}"
     req = urllib.request.Request(url, method="GET")
     with urllib.request.urlopen(req, timeout=10) as resp:
-        return json.loads(resp.read())
+        result: dict[str, Any] = json.loads(resp.read())
+        return result
 
 
 def reset() -> None:
