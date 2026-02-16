@@ -5,10 +5,10 @@ import FlagPage from "./pages/flag";
 export default function App() {
   return (
     <div className="min-h-screen">
-      <header className="border-b border-border bg-card">
+      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center gap-3">
           <Link to="/" className="flex items-center gap-2 font-semibold text-lg tracking-tight">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-bold">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-bold shadow-sm">
               m
             </span>
             modelab
