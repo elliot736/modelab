@@ -8,7 +8,7 @@ import logging
 import threading
 import urllib.request
 from dataclasses import asdict
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
 from modelab._types import AssignmentRecord, EventRecord, ExecutionRecord
