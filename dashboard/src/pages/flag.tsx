@@ -14,8 +14,22 @@ import {
 } from "recharts";
 import { api, type FlagDetail, type TimelinePoint } from "@/lib/api";
 import { fmt, pct } from "@/lib/utils";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
-const COLORS = ["#6366f1", "#f59e0b", "#10b981", "#f43f5e", "#8b5cf6"];
+// Chart colors that adapt to theme
+const getChartColor = (index: number) => {
+  const colors = [
+    "var(--color-chart-1)",
+    "var(--color-chart-2)",
+    "var(--color-chart-3)",
+    "var(--color-chart-4)",
+    "var(--color-chart-5)",
+  ];
+  return colors[index % colors.length];
+};
 
 export default function FlagPage() {
   const { name } = useParams<{ name: string }>();
@@ -61,130 +75,155 @@ export default function FlagPage() {
   return (
     <div>
       <div className="mb-6">
-        <Link to="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-          &larr; All experiments
-        </Link>
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/">&larr; All experiments</Link>
+        </Button>
       </div>
 
-      <h1 className="text-2xl font-bold mb-1">{detail.flag_name}</h1>
-      <p className="text-muted-foreground mb-8">
+      <h1 className="text-2xl font-bold tracking-tight mb-1">{detail.flag_name}</h1>
+      <p className="text-sm text-muted-foreground mb-8">
         {detail.total_assignments.toLocaleString()} total assignments across{" "}
         {detail.variants.length} variants
       </p>
 
       {/* Variant cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
         {detail.variants.map((v, i) => (
-          <div
-            key={v.variant_name}
-            className="rounded-xl border border-border bg-card p-5"
-            style={{ borderTopColor: COLORS[i % COLORS.length], borderTopWidth: 3 }}
-          >
-            <h3 className="font-semibold text-base mb-3">{v.variant_name}</h3>
-            <dl className="grid grid-cols-2 gap-y-2 text-sm">
-              <dt className="text-muted-foreground">Assignments</dt>
-              <dd className="text-right tabular-nums font-medium">{v.assignments.toLocaleString()}</dd>
+          <Card key={v.variant_name} className="shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: getChartColor(i) }}
+                />
+                {v.variant_name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-0">
+              <dl className="grid grid-cols-2 gap-y-2 text-sm">
+                <dt className="text-muted-foreground">Assignments</dt>
+                <dd className="text-right tabular-nums font-medium">{v.assignments.toLocaleString()}</dd>
 
-              <dt className="text-muted-foreground">Success Rate</dt>
-              <dd className="text-right tabular-nums font-medium">{pct(v.success_rate)}</dd>
+                <dt className="text-muted-foreground">Success Rate</dt>
+                <dd className="text-right tabular-nums font-medium">{pct(v.success_rate)}</dd>
 
-              <dt className="text-muted-foreground">Avg Latency</dt>
-              <dd className="text-right tabular-nums">{fmt(v.avg_latency_ms)} ms</dd>
+                <dt className="text-muted-foreground">Avg Latency</dt>
+                <dd className="text-right tabular-nums">{fmt(v.avg_latency_ms)} ms</dd>
 
-              <dt className="text-muted-foreground">Avg Cost</dt>
-              <dd className="text-right tabular-nums">${fmt(v.avg_cost, 4)}</dd>
+                <dt className="text-muted-foreground">Avg Cost</dt>
+                <dd className="text-right tabular-nums">${fmt(v.avg_cost, 4)}</dd>
 
-              <dt className="text-muted-foreground">Avg Input Tokens</dt>
-              <dd className="text-right tabular-nums">{fmt(v.avg_input_tokens, 0)}</dd>
+                <dt className="text-muted-foreground">Avg Input Tokens</dt>
+                <dd className="text-right tabular-nums">{fmt(v.avg_input_tokens, 0)}</dd>
 
-              <dt className="text-muted-foreground">Avg Output Tokens</dt>
-              <dd className="text-right tabular-nums">{fmt(v.avg_output_tokens, 0)}</dd>
-            </dl>
+                <dt className="text-muted-foreground">Avg Output Tokens</dt>
+                <dd className="text-right tabular-nums">{fmt(v.avg_output_tokens, 0)}</dd>
+              </dl>
 
-            {Object.keys(v.custom_events).length > 0 && (
-              <div className="mt-3 pt-3 border-t border-border">
-                <h4 className="text-xs font-medium text-muted-foreground mb-1">Custom Events</h4>
-                <div className="flex flex-wrap gap-2">
-                  {Object.entries(v.custom_events).map(([name, count]) => (
-                    <span key={name} className="text-xs bg-muted rounded-full px-2 py-0.5">
-                      {name}: {count}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+              {Object.keys(v.custom_events).length > 0 && (
+                <>
+                  <Separator className="my-3" />
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-muted-foreground">Custom Events</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(v.custom_events).map(([name, count]) => (
+                        <Badge key={name} variant="outline" className="text-xs">
+                          {name}: {count}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
         ))}
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
         {/* Success Rate Comparison */}
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h3 className="font-semibold mb-4">Success Rate (%)</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={comparisonData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Bar dataKey="Success Rate" fill="#6366f1" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        <Card className="shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Success Rate (%)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={comparisonData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Bar dataKey="Success Rate" fill={getChartColor(0)} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
         {/* Latency Comparison */}
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h3 className="font-semibold mb-4">Avg Latency (ms)</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={comparisonData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Bar dataKey="Avg Latency (ms)" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        <Card className="shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Avg Latency (ms)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={comparisonData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Bar dataKey="Avg Latency (ms)" fill={getChartColor(1)} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
         {/* Cost Comparison */}
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h3 className="font-semibold mb-4">Avg Cost ($)</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={comparisonData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Bar dataKey="Avg Cost ($)" fill="#10b981" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        <Card className="shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Avg Cost ($)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={comparisonData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Bar dataKey="Avg Cost ($)" fill={getChartColor(2)} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
         {/* Assignments Over Time */}
         {timelineData.length > 0 && (
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="font-semibold mb-4">Assignments Over Time</h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={timelineData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Legend />
-                {variants.map((v, i) => (
-                  <Line
-                    key={v}
-                    type="monotone"
-                    dataKey={v}
-                    stroke={COLORS[i % COLORS.length]}
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          <Card className="shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Assignments Over Time</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={timelineData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                  <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Legend />
+                  {variants.map((v, i) => (
+                    <Line
+                      key={v}
+                      type="monotone"
+                      dataKey={v}
+                      stroke={getChartColor(i)}
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>
