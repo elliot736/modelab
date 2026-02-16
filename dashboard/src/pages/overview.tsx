@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type FlagSummary } from "@/lib/api";
 import { pct } from "@/lib/utils";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Overview() {
   const [flags, setFlags] = useState<FlagSummary[]>([]);
@@ -12,7 +15,12 @@ export default function Overview() {
   }, []);
 
   if (loading) {
-    return <div className="text-muted-foreground animate-pulse">Loading flags...</div>;
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
   }
 
   if (flags.length === 0) {
@@ -28,44 +36,44 @@ export default function Overview() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Experiments</h1>
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border bg-muted/50">
-              <th className="text-left px-4 py-3 font-medium">Flag</th>
-              <th className="text-left px-4 py-3 font-medium">Variants</th>
-              <th className="text-right px-4 py-3 font-medium">Assignments</th>
-              <th className="text-right px-4 py-3 font-medium">Success Rate</th>
-            </tr>
-          </thead>
-          <tbody>
+      <h1 className="text-2xl font-bold tracking-tight mb-6">Experiments</h1>
+      <div className="rounded-xl border border-border overflow-hidden shadow-sm">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="font-semibold">Flag</TableHead>
+              <TableHead className="font-semibold">Variants</TableHead>
+              <TableHead className="text-right font-semibold">Assignments</TableHead>
+              <TableHead className="text-right font-semibold">Success Rate</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {flags.map((f) => (
-              <tr key={f.flag_name} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                <td className="px-4 py-3">
+              <TableRow key={f.flag_name} className="hover:bg-muted/50 transition-colors">
+                <TableCell>
                   <Link to={`/flags/${f.flag_name}`} className="font-medium text-primary hover:underline">
                     {f.flag_name}
                   </Link>
-                </td>
-                <td className="px-4 py-3">
+                </TableCell>
+                <TableCell>
                   <div className="flex gap-1.5 flex-wrap">
                     {f.variants.map((v) => (
-                      <span key={v} className="inline-block rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                      <Badge key={v} variant="secondary">
                         {v}
-                      </span>
+                      </Badge>
                     ))}
                   </div>
-                </td>
-                <td className="px-4 py-3 text-right tabular-nums">{f.total_assignments.toLocaleString()}</td>
-                <td className="px-4 py-3 text-right tabular-nums">
+                </TableCell>
+                <TableCell className="text-right tabular-nums">{f.total_assignments.toLocaleString()}</TableCell>
+                <TableCell className="text-right tabular-nums">
                   <span className={f.success_rate != null && f.success_rate >= 0.9 ? "text-success font-medium" : ""}>
                     {pct(f.success_rate)}
                   </span>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </div>
   );
