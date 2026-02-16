@@ -204,12 +204,18 @@ assignment.mark_success()
 
 ---
 
-## Dashboard
+## 🎨 Dashboard
 
-The self-hosted dashboard gives you real-time visibility into experiment performance:
+The self-hosted dashboard gives you real-time visibility into experiment performance with a modern dark mode interface:
 
 <div align="center">
-<img src="https://via.placeholder.com/800x450/1a1b26/7aa2f7?text=Dashboard+Screenshot" alt="modelab Dashboard" width="800">
+<img src="docs/dashboard-1.png" alt="modelab Dashboard - Experiments Overview" width="800">
+<p><em>Experiments overview with variant badges and success rate metrics</em></p>
+</div>
+
+<div align="center">
+<img src="docs/dashboard-2.png" alt="modelab Dashboard - Flag Detail" width="800">
+<p><em>Detailed flag view with per-variant metrics and comparison charts</em></p>
 </div>
 
 **Features:**
@@ -217,6 +223,8 @@ The self-hosted dashboard gives you real-time visibility into experiment perform
 - 📊 Per-variant success rates, latency, cost, and token usage
 - 📈 Time-series charts for trend analysis
 - 🎯 Flag-level summaries with statistical significance
+- 🌙 Modern dark mode interface built with shadcn/ui
+- ⚡ Real-time updates and responsive design
 
 ---
 
