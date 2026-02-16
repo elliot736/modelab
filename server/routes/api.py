@@ -37,9 +37,7 @@ def list_flags():
             flag_name=r["flag_name"],
             variants=r["variants"],
             total_assignments=r["total_assignments"],
-            success_rate=r["success_count"] / r["total_assignments"]
-            if r["total_assignments"] > 0
-            else None,
+            success_rate=r["success_count"] / r["total_assignments"] if r["total_assignments"] > 0 else None,
         )
         for r in rows
     ]
@@ -101,9 +99,7 @@ def get_flag(name: str):
             assignments=r["assignments"],
             success_count=r["success_count"],
             failure_count=r["failure_count"],
-            success_rate=r["success_count"] / r["assignments"]
-            if r["assignments"] > 0
-            else None,
+            success_rate=r["success_count"] / r["assignments"] if r["assignments"] > 0 else None,
             avg_latency_ms=float(r["avg_latency_ms"]) if r["avg_latency_ms"] else None,
             avg_cost=float(r["avg_cost"]) if r["avg_cost"] else None,
             avg_input_tokens=float(r["avg_input_tokens"]) if r["avg_input_tokens"] else None,
@@ -151,9 +147,7 @@ def get_timeline(name: str):
             date=str(r["date"]),
             variant_name=r["variant_name"],
             assignments=r["assignments"],
-            success_rate=r["success_count"] / r["assignments"]
-            if r["assignments"] > 0
-            else None,
+            success_rate=r["success_count"] / r["assignments"] if r["assignments"] > 0 else None,
             avg_latency_ms=float(r["avg_latency_ms"]) if r["avg_latency_ms"] else None,
             avg_cost=float(r["avg_cost"]) if r["avg_cost"] else None,
         )
