@@ -22,9 +22,7 @@ class _State:
             if not flag.variants:
                 raise InvalidFlagError(f"Flag {flag.name!r} has no variants")
             if not (0 <= flag.rollout_pct <= 100):
-                raise InvalidFlagError(
-                    f"Flag {flag.name!r} rollout_pct must be 0-100, got {flag.rollout_pct}"
-                )
+                raise InvalidFlagError(f"Flag {flag.name!r} rollout_pct must be 0-100, got {flag.rollout_pct}")
         self.storage = storage
         self.flags = {f.name: f for f in flags}
         self.server_url = server_url
