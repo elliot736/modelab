@@ -7,7 +7,6 @@ import statistics
 from modelab._engine import BUCKET_COUNT, _bucket, assign_variant
 from modelab._types import EvalContext, Flag, Variant
 
-
 # ── Bucketing ────────────────────────────────────────────────────────
 
 
@@ -40,13 +39,8 @@ class TestBucket:
 
     def test_different_flags_different_buckets(self):
         """Different flag names produce different buckets for the same user."""
-        b1 = _bucket("flag_a", "user1")
-        b2 = _bucket("flag_b", "user1")
         # Not guaranteed to differ for a single pair, but for many pairs most will differ
-        different = sum(
-            1 for i in range(200)
-            if _bucket("flagA", f"u{i}") != _bucket("flagB", f"u{i}")
-        )
+        different = sum(1 for i in range(200) if _bucket("flagA", f"u{i}") != _bucket("flagB", f"u{i}"))
         assert different > 150  # Most should differ
 
     def test_empty_user_id(self):
@@ -94,46 +88,31 @@ class TestRollout:
     def test_50_percent_rollout(self):
         """50% rollout → roughly half assigned."""
         flag = Flag(name="half", variants=[Variant("a", weight=100)], rollout_pct=50)
-        assigned = sum(
-            1 for i in range(2000)
-            if assign_variant(flag, EvalContext(user_id=f"u{i}")) is not None
-        )
+        assigned = sum(1 for i in range(2000) if assign_variant(flag, EvalContext(user_id=f"u{i}")) is not None)
         assert 850 < assigned < 1150  # ~1000 ± 150
 
     def test_1_percent_rollout(self):
         """1% rollout → ~1% of users assigned."""
         flag = Flag(name="tiny", variants=[Variant("a", weight=100)], rollout_pct=1)
-        assigned = sum(
-            1 for i in range(10_000)
-            if assign_variant(flag, EvalContext(user_id=f"u{i}")) is not None
-        )
+        assigned = sum(1 for i in range(10_000) if assign_variant(flag, EvalContext(user_id=f"u{i}")) is not None)
         assert 50 < assigned < 200  # ~100 ± broad tolerance
 
     def test_99_percent_rollout(self):
         """99% rollout → most users assigned, some excluded."""
         flag = Flag(name="almost", variants=[Variant("a", weight=100)], rollout_pct=99)
-        excluded = sum(
-            1 for i in range(5000)
-            if assign_variant(flag, EvalContext(user_id=f"u{i}")) is None
-        )
+        excluded = sum(1 for i in range(5000) if assign_variant(flag, EvalContext(user_id=f"u{i}")) is None)
         assert 10 < excluded < 100  # ~50
 
     def test_fractional_rollout(self):
         """Fractional rollout like 33.33% works."""
         flag = Flag(name="third", variants=[Variant("a", weight=100)], rollout_pct=33.33)
-        assigned = sum(
-            1 for i in range(3000)
-            if assign_variant(flag, EvalContext(user_id=f"u{i}")) is not None
-        )
+        assigned = sum(1 for i in range(3000) if assign_variant(flag, EvalContext(user_id=f"u{i}")) is not None)
         assert 800 < assigned < 1200  # ~1000
 
     def test_very_small_rollout(self):
         """0.01% rollout — should still assign some users."""
         flag = Flag(name="micro", variants=[Variant("a", weight=100)], rollout_pct=0.01)
-        assigned = sum(
-            1 for i in range(100_000)
-            if assign_variant(flag, EvalContext(user_id=f"u{i}")) is not None
-        )
+        assigned = sum(1 for i in range(100_000) if assign_variant(flag, EvalContext(user_id=f"u{i}")) is not None)
         # Expected ~10 out of 100k (bucket 0 only)
         assert 0 < assigned < 50
 
@@ -247,10 +226,7 @@ class TestVariantSelection:
             variants=[Variant("main", weight=99), Variant("tiny", weight=1)],
             rollout_pct=100,
         )
-        tiny_count = sum(
-            1 for i in range(10000)
-            if assign_variant(flag, EvalContext(user_id=f"u{i}")).name == "tiny"
-        )
+        tiny_count = sum(1 for i in range(10000) if assign_variant(flag, EvalContext(user_id=f"u{i}")).name == "tiny")
         assert tiny_count > 0
 
     def test_variant_config_preserved(self):
@@ -290,7 +266,8 @@ class TestEdgeCases:
         flag_b = Flag(name="flag_b", variants=[Variant("a"), Variant("b")], rollout_pct=100)
         # Not guaranteed to differ per user, but over many users assignments will vary
         different = sum(
-            1 for i in range(500)
+            1
+            for i in range(500)
             if assign_variant(flag_a, EvalContext(user_id=f"u{i}")).name
             != assign_variant(flag_b, EvalContext(user_id=f"u{i}")).name
         )
