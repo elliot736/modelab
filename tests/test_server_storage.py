@@ -7,11 +7,10 @@ import json
 import threading
 import time
 from typing import Any
-from unittest.mock import patch
 
 import pytest
 
-from modelab._server_storage import ServerStorage, _FLUSH_INTERVAL, _FLUSH_SIZE
+from modelab._server_storage import _FLUSH_SIZE, ServerStorage
 from modelab._types import AssignmentRecord, EventRecord, ExecutionRecord
 
 
@@ -30,11 +29,13 @@ class _MockServer:
             def do_POST(self):
                 length = int(self.headers.get("Content-Length", 0))
                 body = self.rfile.read(length)
-                parent.requests.append({
-                    "path": self.path,
-                    "body": json.loads(body) if body else [],
-                    "headers": dict(self.headers),
-                })
+                parent.requests.append(
+                    {
+                        "path": self.path,
+                        "body": json.loads(body) if body else [],
+                        "headers": dict(self.headers),
+                    }
+                )
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
@@ -157,9 +158,7 @@ class TestBuffering:
         srv, port = mock_server
         storage = _make_storage(port)
         for i in range(5):
-            storage.save_assignment(
-                AssignmentRecord(flag_name="f", variant_name="v", user_id=f"u{i}")
-            )
+            storage.save_assignment(AssignmentRecord(flag_name="f", variant_name="v", user_id=f"u{i}"))
         # Should not have flushed yet (5 < _FLUSH_SIZE)
         # Note: timer may flush, so we check accumulated total
         storage.flush()  # Force flush remaining
@@ -172,9 +171,7 @@ class TestBuffering:
         storage = _make_storage(port)
         # Save exactly _FLUSH_SIZE records
         for i in range(_FLUSH_SIZE):
-            storage.save_assignment(
-                AssignmentRecord(flag_name="f", variant_name="v", user_id=f"u{i}")
-            )
+            storage.save_assignment(AssignmentRecord(flag_name="f", variant_name="v", user_id=f"u{i}"))
 
         # Give a moment for the auto-flush in save_assignment
         time.sleep(0.1)
@@ -190,9 +187,7 @@ class TestBuffering:
         srv, port = mock_server
         storage = _make_storage(port)
         for i in range(3):
-            storage.save_assignment(
-                AssignmentRecord(flag_name="f", variant_name="v", user_id=f"u{i}")
-            )
+            storage.save_assignment(AssignmentRecord(flag_name="f", variant_name="v", user_id=f"u{i}"))
         storage.flush()
 
         body = srv.requests[0]["body"]
@@ -262,9 +257,7 @@ class TestConcurrency:
         def writer(tid: int):
             try:
                 for i in range(20):
-                    storage.save_assignment(
-                        AssignmentRecord(flag_name="f", variant_name="v", user_id=f"t{tid}_u{i}")
-                    )
+                    storage.save_assignment(AssignmentRecord(flag_name="f", variant_name="v", user_id=f"t{tid}_u{i}"))
             except Exception as e:
                 errors.append(e)
 
@@ -277,9 +270,7 @@ class TestConcurrency:
         storage.flush()
         assert not errors
 
-        total = sum(
-            len(r["body"]) for r in srv.requests if "/assignments" in r["path"]
-        )
+        total = sum(len(r["body"]) for r in srv.requests if "/assignments" in r["path"])
         assert total == 80
 
 
