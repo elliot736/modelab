@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import http.server
-import json
 import threading
 
 import pytest
@@ -16,7 +15,6 @@ from modelab._errors import (
     NotInitializedError,
 )
 from modelab._types import EvalContext, Flag, Variant
-
 
 # ── Mock Ingest Server ───────────────────────────────────────────────
 
@@ -191,9 +189,7 @@ class TestAssignment:
     def test_deterministic(self, mock_server):
         modelab.init(
             server=f"http://127.0.0.1:{mock_server}",
-            flags=[
-                Flag(name="det", variants=[Variant("a", weight=50), Variant("b", weight=50)], rollout_pct=100)
-            ],
+            flags=[Flag(name="det", variants=[Variant("a", weight=50), Variant("b", weight=50)], rollout_pct=100)],
         )
         ctx = EvalContext(user_id="stable_user")
         a1 = modelab.assign("det", ctx)
