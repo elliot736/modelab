@@ -73,15 +73,11 @@ class TestValidation:
 
     def test_reject_negative_rollout(self, state: _State, storage: ServerStorage):
         with pytest.raises(InvalidFlagError, match="rollout_pct"):
-            state.configure(
-                storage, [Flag(name="neg", variants=[Variant("v")], rollout_pct=-0.1)]
-            )
+            state.configure(storage, [Flag(name="neg", variants=[Variant("v")], rollout_pct=-0.1)])
 
     def test_reject_rollout_over_100(self, state: _State, storage: ServerStorage):
         with pytest.raises(InvalidFlagError, match="rollout_pct"):
-            state.configure(
-                storage, [Flag(name="big", variants=[Variant("v")], rollout_pct=100.1)]
-            )
+            state.configure(storage, [Flag(name="big", variants=[Variant("v")], rollout_pct=100.1)])
 
     def test_accept_rollout_0(self, state: _State, storage: ServerStorage):
         state.configure(storage, [Flag(name="f", variants=[Variant("v")], rollout_pct=0)])
@@ -92,9 +88,7 @@ class TestValidation:
         assert state.initialized
 
     def test_accept_fractional_rollout(self, state: _State, storage: ServerStorage):
-        state.configure(
-            storage, [Flag(name="f", variants=[Variant("v")], rollout_pct=33.33)]
-        )
+        state.configure(storage, [Flag(name="f", variants=[Variant("v")], rollout_pct=33.33)])
         assert state.initialized
 
     def test_validation_fails_before_state_changes(self, state: _State, storage: ServerStorage):
